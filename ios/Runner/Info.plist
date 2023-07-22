@@ -47,5 +47,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Upload photos to use as nonograms</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Take photos to use as nonograms</string>
 </dict>
 </plist>
