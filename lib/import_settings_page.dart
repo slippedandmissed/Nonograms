@@ -245,6 +245,7 @@ class GridPreview extends ConsumerWidget {
     this.image,
     required this.totalWidth,
     this.nonogram,
+    this.wins,
     required this.nonogramView,
     this.tileBorderWidth = 2,
     this.onTap,
@@ -254,6 +255,7 @@ class GridPreview extends ConsumerWidget {
   final int kernelWidth, kernelHeight, imageWidth, imageHeight;
   final img.Image? image;
   final NonogramSet? nonogram;
+  final List<List<bool>>? wins;
   final double tileBorderWidth, totalWidth;
   final bool nonogramView;
   final Function(int kernelX, int kernelY)? onTap;
@@ -306,6 +308,9 @@ class GridPreview extends ConsumerWidget {
                         kernelHeight: min(kernelHeight, imageHeight - i),
                         kernelX: (j / kernelWidth).floor(),
                         kernelY: (i / kernelHeight).floor(),
+                        wins: wins?[(i / kernelHeight).floor()]
+                                [(j / kernelWidth).floor()] ??
+                            false,
                         borderWidth: tileBorderWidth,
                         nonogram: nonogram!.kernels[(i / kernelHeight).floor()]
                             [(j / kernelWidth).floor()],
@@ -334,11 +339,13 @@ class GridKernelPreview extends StatelessWidget {
     required this.kernelX,
     required this.kernelY,
     this.onTap,
+    this.wins = false,
   });
   final int kernelWidth, kernelHeight, kernelX, kernelY;
   final double cellSize, borderWidth;
   final Nonogram nonogram;
   final bool nonogramView;
+  final bool wins;
   final Function(int kernelX, int kernelY)? onTap;
 
   @override
@@ -349,7 +356,8 @@ class GridKernelPreview extends StatelessWidget {
         width: cellSize * kernelWidth + 2 * borderWidth,
         height: cellSize * kernelHeight + 2 * borderWidth,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.black, width: borderWidth),
+          border: Border.all(
+              color: wins ? Colors.green : Colors.black, width: borderWidth),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

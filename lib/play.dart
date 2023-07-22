@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nonograms/game.dart';
@@ -37,12 +38,26 @@ List<List<CellState>> transpose(List<List<CellState>> grid) {
       grid[0].length, (index) => grid.map((e) => e[index]).toList());
 }
 
-bool listsEqual<T>(List<T> a, List<T> b) {
+bool listsEqual<T>(
+  List<T> a,
+  List<T> b, {
+  bool Function(T a, T b)? equals,
+}) {
   if (a.length != b.length) return false;
   for (int i = 0; i < a.length; i++) {
-    if (a[i] != b[i]) return false;
+    if ((equals == null && a[i] != b[i]) ||
+        (equals != null && !equals(a[i], b[i]))) return false;
   }
   return true;
+}
+
+bool doesWin(List<List<CellState>> solution, List<List<CellState>> progress) {
+  return listsEqual(
+    progress,
+    solution,
+    equals: (a, b) => listEquals(
+        a.map((e) => e == CellState.filled ? e : CellState.empty).toList(), b),
+  );
 }
 
 List<bool> calculateMatches(List<List<CellState>> grid, List<List<int>> hints) {
@@ -55,15 +70,12 @@ class History {
   int _index = -1;
 
   void push(List<List<CellState>> state) {
-    if (_history.isNotEmpty && _history.first.length == state.length) {
-      var broken = false;
-      for (int i = 0; i < state.length; i++) {
-        if (!listsEqual(state[i], _history.first[i])) {
-          broken = true;
-          break;
-        }
-      }
-      if (!broken) {
+    if (canPop()) {
+      if (listsEqual(
+        state,
+        _history[_index],
+        equals: (a, b) => listEquals(a, b),
+      )) {
         return;
       }
     }
@@ -193,6 +205,13 @@ class _PlayPageState extends ConsumerState<PlayPage> {
     final rowsComplete = calculateMatches(_work, _rowHints);
     final columnsComplete = calculateMatches(transpose(_work), _columnHints);
 
+    final allComplete =
+        [...rowsComplete, ...columnsComplete].every((element) => element);
+    final win = allComplete ? doesWin(widget.solution.solution, _work) : false;
+
+    final hintColor =
+        allComplete ? (win ? Colors.green : Colors.red) : widget.hintColor;
+
     return Scaffold(
       appBar: AppBar(),
       body: Column(
@@ -234,7 +253,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                     left: borderSide,
                     right: borderSide,
                   ),
-                  color: widget.hintColor,
+                  color: hintColor,
                 ),
                 child: Row(
                   children: [
@@ -277,7 +296,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                     top: borderSide,
                     bottom: borderSide,
                   ),
-                  color: widget.hintColor,
+                  color: hintColor,
                 ),
                 child: Column(
                   children: [

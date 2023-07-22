@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nonograms/game.dart';
 import 'package:nonograms/image_processing.dart';
 import 'package:nonograms/import_settings_page.dart';
+import 'package:nonograms/play.dart';
 import 'package:nonograms/router/router.dart';
 
 @RoutePage()
@@ -128,6 +129,16 @@ class SavedGamePreview extends ConsumerWidget {
     var imageHeight =
         (nonogramSet.mosaicHeight - 1) * nonogramSet.kernels[0][0].gridHeight +
             nonogramSet.kernels[nonogramSet.kernels.length - 1][0].gridHeight;
+
+    final wins = List.generate(
+      game.nonogramSet.mosaicHeight,
+      (i) => List.generate(
+        game.nonogramSet.mosaicWidth,
+        (j) => doesWin(game.nonogramSet.kernels[i][j].solution,
+            game.progress.kernels[i][j].solution),
+      ),
+    );
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -140,6 +151,7 @@ class SavedGamePreview extends ConsumerWidget {
           totalWidth: 300,
           nonogramView: true,
           nonogram: nonogramSet,
+          wins: wins,
           onTap: (kernelX, kernelY) {
             context.router.push(PlayRoute(
               gameId: game.id,
