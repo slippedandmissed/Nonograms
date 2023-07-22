@@ -13,18 +13,16 @@ List<int> calculateHints(List<CellState> cells) {
   final result = <int>[];
   for (final cell in cells) {
     switch (cell) {
-      case CellState.empty:
-        if (inSpan) {
-          inSpan = false;
-          result.add(spanLength);
-          spanLength = 0;
-        }
-        break;
       case CellState.filled:
         inSpan = true;
         spanLength++;
         break;
       default:
+        if (inSpan) {
+          inSpan = false;
+          result.add(spanLength);
+          spanLength = 0;
+        }
         break;
     }
   }
