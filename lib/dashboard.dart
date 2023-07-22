@@ -56,37 +56,60 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final addButton = FloatingActionButton(
+      onPressed: () async {
+        final picker = ImagePicker();
+        final selected = await picker.pickImage(source: ImageSource.gallery);
+        if (selected == null) {
+          return;
+        }
+        final bytes = await selected.readAsBytes();
+        final image = await loadImage(bytes);
+        if (image == null) {
+          return;
+        }
+        if (mounted) context.router.push(ImportSettingsRoute(image: image));
+      },
+      child: const Icon(Icons.add),
+    );
     return Scaffold(
       appBar: AppBar(title: const Text("Nonograms")),
       body: _games == null
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : PageView(
-              controller: _pageController,
-              children: [
-                for (final game in _games!)
-                  game == null
-                      ? const Center(child: CircularProgressIndicator())
-                      : SavedGamePreview(game: game),
-              ],
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final picker = ImagePicker();
-          final selected = await picker.pickImage(source: ImageSource.gallery);
-          if (selected == null) {
-            return;
-          }
-          final bytes = await selected.readAsBytes();
-          final image = await loadImage(bytes);
-          if (image == null) {
-            return;
-          }
-          if (mounted) context.router.push(ImportSettingsRoute(image: image));
-        },
-        child: const Icon(Icons.add),
-      ),
+          : _games!.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "You don't have any games!",
+                        style: TextStyle(fontSize: 24),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      const Text("Click the button below to get started."),
+                      const SizedBox(
+                        height: 32,
+                      ),
+                      addButton,
+                    ],
+                  ),
+                )
+              : PageView(
+                  controller: _pageController,
+                  children: [
+                    for (final game in _games!)
+                      game == null
+                          ? const Center(child: CircularProgressIndicator())
+                          : SavedGamePreview(game: game),
+                  ],
+                ),
+      floatingActionButton:
+          _games == null || _games!.isEmpty ? null : addButton,
     );
   }
 }
