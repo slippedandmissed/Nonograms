@@ -108,6 +108,7 @@ class _ImportSettingsPageState extends ConsumerState<ImportSettingsPage> {
                 }),
             const SizedBox(height: 8),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text("Invert"),
                 Checkbox(
