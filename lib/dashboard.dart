@@ -91,13 +91,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 }
 
-class SavedGamePreview extends StatelessWidget {
+class SavedGamePreview extends ConsumerWidget {
   const SavedGamePreview({super.key, required this.game});
 
   final Game game;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final nonogramSet = game.progress;
     var imageWidth =
         (nonogramSet.mosaicWidth - 1) * nonogramSet.kernels[0][0].gridWidth +
@@ -137,7 +137,53 @@ class SavedGamePreview extends StatelessWidget {
             width: 200,
           ),
         ),
+        const SizedBox(height: 16),
+        TextButton(
+          onPressed: () {
+            showAlertDialog(
+              context,
+              onContinue: () async {
+                await ref.read(storedGamesProvider).deleteGame(game.id);
+              },
+            );
+          },
+          child: const Icon(Icons.delete_forever, size: 32),
+        ),
       ],
     );
   }
+}
+
+showAlertDialog(BuildContext context, {required Function() onContinue}) {
+  // set up the buttons
+  Widget cancelButton = TextButton(
+    onPressed: () {
+      Navigator.pop(context);
+    },
+    child: const Text("Cancel"),
+  );
+  Widget continueButton = TextButton(
+    onPressed: () {
+      Navigator.pop(context);
+      onContinue();
+    },
+    child: const Text("Continue"),
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: const Text("Delete Game"),
+    content: const Text(
+        "Are you sure you want to delete this game? All of your progress will be lost"),
+    actions: [
+      cancelButton,
+      continueButton,
+    ],
+  );
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }
