@@ -1,4 +1,4 @@
-package com.example.nonograms
+package personal.morgan.nonograms
 
 import io.flutter.embedding.android.FlutterActivity
 
