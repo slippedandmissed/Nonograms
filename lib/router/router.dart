@@ -1,9 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart' show Key;
-import 'package:nonograms/dashboard/dashboard.dart';
+import 'package:nonograms/dashboard.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nonograms/import_settings_page.dart';
 import 'package:image/image.dart';
+import 'package:nonograms/nonogram.dart';
+import 'package:nonograms/play.dart';
 
 part 'router.gr.dart';
 
@@ -18,6 +20,10 @@ class AppRouter extends _$AppRouter {
         AutoRoute(
           path: "/import-image",
           page: ImportSettingsRoute.page,
+        ),
+        AutoRoute(
+          path: "/play",
+          page: PlayRoute.page,
         )
       ];
 }

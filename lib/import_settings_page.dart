@@ -5,8 +5,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img;
+import 'package:nonograms/game.dart';
 import 'package:nonograms/image_processing.dart';
 import 'package:nonograms/nonogram.dart';
+import 'package:uuid/uuid.dart';
 
 @RoutePage()
 class ImportSettingsPage extends ConsumerStatefulWidget {
@@ -21,31 +23,33 @@ const maxKernelSize = 32;
 const minKernelSize = 3;
 
 class _ImportSettingsPageState extends ConsumerState<ImportSettingsPage> {
-  double mosaicSize = 9;
-  int kernelSize = 15;
-  double sobelLevel = 0.5;
-  double luminanceThreshold = 0.5;
+  double _mosaicSize = 9;
+  int _kernelSize = 15;
+  double _sobelLevel = 0.5;
+  double _luminanceThreshold = 0.5;
 
-  bool isSubmitting = false;
-  bool nonogramView = false;
+  var isSubmitting = false;
+  var nonogramView = false;
+  var _invert = false;
 
   @override
   Widget build(BuildContext context) {
     final aspect = widget.image.width / widget.image.height;
-    final numKernelsX = sqrt(mosaicSize * aspect);
-    final numKernelsY = mosaicSize / numKernelsX;
+    final numKernelsX = sqrt(_mosaicSize * aspect);
+    final numKernelsY = _mosaicSize / numKernelsX;
 
-    final imageWidth = (kernelSize * numKernelsX).round();
-    final imageHeight = (kernelSize * numKernelsY).round();
+    final imageWidth = (_kernelSize * numKernelsX).round();
+    final imageHeight = (_kernelSize * numKernelsY).round();
 
     final nonogram = importImage(
       image: widget.image,
-      kernelWidth: kernelSize,
-      kernelHeight: kernelSize,
+      kernelWidth: _kernelSize,
+      kernelHeight: _kernelSize,
       imageWidth: imageWidth,
       imageHeight: imageHeight,
-      sobelLevel: sobelLevel,
-      luminanceThreshold: luminanceThreshold,
+      sobelLevel: _sobelLevel,
+      luminanceThreshold: _luminanceThreshold,
+      invert: _invert,
     );
 
     return Scaffold(
@@ -55,57 +59,70 @@ class _ImportSettingsPageState extends ConsumerState<ImportSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Kernel Size: $kernelSize×$kernelSize cells"),
+            Text("Kernel Size: $_kernelSize×$_kernelSize cells"),
             Slider(
                 max: maxKernelSize.toDouble(),
                 min: minKernelSize.toDouble(),
                 divisions: maxKernelSize - minKernelSize,
-                label: "$kernelSize",
-                value: kernelSize.toDouble(),
+                label: "$_kernelSize",
+                value: _kernelSize.toDouble(),
                 onChanged: (v) {
                   setState(() {
-                    kernelSize = v.round();
+                    _kernelSize = v.round();
                   });
                 }),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
-                "Mosaic Size: Approx. ${mosaicSize.toStringAsFixed(1)} kernels"),
+                "Mosaic Size: Approx. ${_mosaicSize.toStringAsFixed(1)} kernels"),
             Slider(
                 max: 60,
                 min: 1,
-                value: mosaicSize,
+                value: _mosaicSize,
                 onChanged: (v) {
                   setState(() {
-                    mosaicSize = v;
+                    _mosaicSize = v;
                   });
                 }),
-            const SizedBox(height: 16),
-            Text("Sobel Level: ${sobelLevel.toStringAsFixed(2)}"),
-            Slider(
-                max: 1,
-                min: 0.01,
-                value: sobelLevel,
-                onChanged: (v) {
-                  setState(() {
-                    sobelLevel = v;
-                  });
-                }),
-            const SizedBox(height: 16),
-            Text(
-                "Luminance Threshold: ${luminanceThreshold.toStringAsFixed(2)}"),
+            const SizedBox(height: 8),
+            Text("Sobel Level: ${_sobelLevel.toStringAsFixed(2)}"),
             Slider(
                 max: 1,
                 min: 0,
-                value: luminanceThreshold,
+                value: _sobelLevel,
                 onChanged: (v) {
                   setState(() {
-                    luminanceThreshold = v;
+                    _sobelLevel = v;
                   });
                 }),
+            const SizedBox(height: 8),
+            Text(
+                "Luminance Threshold: ${_luminanceThreshold.toStringAsFixed(2)}"),
+            Slider(
+                max: 1,
+                min: 0,
+                value: _luminanceThreshold,
+                onChanged: (v) {
+                  setState(() {
+                    _luminanceThreshold = v;
+                  });
+                }),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text("Invert"),
+                Checkbox(
+                    value: _invert,
+                    onChanged: (invert) {
+                      setState(() {
+                        _invert = invert ?? false;
+                      });
+                    })
+              ],
+            ),
             const SizedBox(height: 32),
             GridPreview(
-              kernelWidth: kernelSize,
-              kernelHeight: kernelSize,
+              kernelWidth: _kernelSize,
+              kernelHeight: _kernelSize,
               imageWidth: imageWidth,
               imageHeight: imageHeight,
               // image: processImage(
@@ -122,6 +139,7 @@ class _ImportSettingsPageState extends ConsumerState<ImportSettingsPage> {
               nonogramView: nonogramView,
               totalWidth: 300,
             ),
+            const SizedBox(height: 8),
             ToggleButtons(
               isSelected: [!nonogramView, nonogramView],
               onPressed: (index) {
@@ -129,16 +147,63 @@ class _ImportSettingsPageState extends ConsumerState<ImportSettingsPage> {
                   nonogramView = index == 1;
                 });
               },
-              children: const [Text("Image View"), Text("Nonogram View")],
+              children: const [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text("Image View"),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text("Nonogram View"),
+                ),
+              ],
             ),
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: isSubmitting
                   ? null
-                  : () {
-                      // setState(() {
-                      //   isSubmitting = true;
-                      // });
+                  : () async {
+                      setState(() {
+                        isSubmitting = true;
+                      });
+                      final progress = <List<Nonogram>>[];
+                      for (final kernelRow in nonogram.kernels) {
+                        final progressKernelRow = <Nonogram>[];
+                        for (final kernel in kernelRow) {
+                          final progressKernel = <List<CellState>>[];
+                          for (final cellRow in kernel.solution) {
+                            final progressCellRow = <CellState>[];
+                            for (final _ in cellRow) {
+                              progressCellRow.add(CellState.empty);
+                            }
+                            progressKernel.add(progressCellRow);
+                          }
+                          progressKernelRow.add(
+                            Nonogram(
+                                gridWidth: progressKernel[0].length,
+                                gridHeight: progressKernel.length,
+                                solution: progressKernel),
+                          );
+                        }
+                        progress.add(progressKernelRow);
+                      }
+                      final progressNonogram = NonogramSet(
+                        mosaicWidth: progress[0].length,
+                        mosaicHeight: progress.length,
+                        kernels: progress,
+                      );
+
+                      final imagePath = await saveImage(widget.image);
+                      final id = const Uuid().v4();
+                      final game = Game(
+                        id: id,
+                        imagePath: imagePath,
+                        nonogramSet: nonogram,
+                        progress: progressNonogram,
+                      );
+                      await ref.read(storedGamesProvider).storeGame(game);
+                      if (!mounted) return;
+                      context.router.pop();
                     },
               style: ElevatedButton.styleFrom(
                 elevation: 12,
@@ -176,18 +241,21 @@ class GridPreview extends ConsumerWidget {
     required this.kernelHeight,
     required this.imageWidth,
     required this.imageHeight,
-    required this.image,
+    this.image,
     required this.totalWidth,
-    required this.nonogram,
+    this.nonogram,
     required this.nonogramView,
     this.tileBorderWidth = 2,
-  });
+    this.onTap,
+  }) : assert((nonogramView && nonogram != null) ||
+            (!nonogramView && image != null));
 
   final int kernelWidth, kernelHeight, imageWidth, imageHeight;
-  final img.Image image;
-  final NonogramSet nonogram;
+  final img.Image? image;
+  final NonogramSet? nonogram;
   final double tileBorderWidth, totalWidth;
   final bool nonogramView;
+  final Function(int kernelX, int kernelY)? onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -196,11 +264,12 @@ class GridPreview extends ConsumerWidget {
         imageWidth;
     final totalHeight = cellSize * imageHeight +
         2 * tileBorderWidth * (1 + (imageHeight / kernelHeight).ceil());
-    final uiImage = ref.watch(decodedImageProvider(image));
+    final uiImage =
+        nonogramView ? null : ref.watch(decodedImageProvider(image!));
     return Stack(
       children: [
         if (!nonogramView)
-          uiImage.when(
+          uiImage!.when(
             data: (uiImage) => RawImage(
               fit: BoxFit.cover,
               image: uiImage,
@@ -230,14 +299,17 @@ class GridPreview extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     for (int j = 0; j < imageWidth; j += kernelWidth)
-                      GridPreviewTile(
+                      GridKernelPreview(
                         cellSize: cellSize,
                         kernelWidth: min(kernelWidth, imageWidth - j),
                         kernelHeight: min(kernelHeight, imageHeight - i),
+                        kernelX: (j / kernelWidth).floor(),
+                        kernelY: (i / kernelHeight).floor(),
                         borderWidth: tileBorderWidth,
-                        nonogram: nonogram.kernels[(i / kernelHeight).floor()]
+                        nonogram: nonogram!.kernels[(i / kernelHeight).floor()]
                             [(j / kernelWidth).floor()],
                         nonogramView: nonogramView,
+                        onTap: onTap,
                       )
                   ],
                 )
@@ -249,8 +321,8 @@ class GridPreview extends ConsumerWidget {
   }
 }
 
-class GridPreviewTile extends StatelessWidget {
-  const GridPreviewTile({
+class GridKernelPreview extends StatelessWidget {
+  const GridKernelPreview({
     super.key,
     required this.cellSize,
     required this.kernelWidth,
@@ -258,43 +330,74 @@ class GridPreviewTile extends StatelessWidget {
     required this.borderWidth,
     required this.nonogram,
     required this.nonogramView,
+    required this.kernelX,
+    required this.kernelY,
+    this.onTap,
   });
-  final int kernelWidth, kernelHeight;
+  final int kernelWidth, kernelHeight, kernelX, kernelY;
   final double cellSize, borderWidth;
   final Nonogram nonogram;
   final bool nonogramView;
+  final Function(int kernelX, int kernelY)? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: cellSize * kernelWidth + 2 * borderWidth,
-      height: cellSize * kernelHeight + 2 * borderWidth,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: borderWidth),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (int i = 0; i < kernelHeight; i++)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (int j = 0; j < kernelWidth; j++)
-                  Container(
-                    width: cellSize,
-                    height: cellSize,
-                    decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey, width: 1),
-                        color: nonogramView
-                            ? (nonogram.solution[i][j]
-                                ? Colors.white
-                                : Colors.deepPurple)
-                            : Colors.transparent),
-                  )
-              ],
-            )
-        ],
+    return InkWell(
+      onTap: onTap == null ? null : () => onTap!(kernelX, kernelY),
+      child: Container(
+        width: cellSize * kernelWidth + 2 * borderWidth,
+        height: cellSize * kernelHeight + 2 * borderWidth,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: borderWidth),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (int i = 0; i < kernelHeight; i++)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (int j = 0; j < kernelWidth; j++)
+                    Container(
+                      width: cellSize,
+                      height: cellSize,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey, width: 1),
+                          color: nonogramView
+                              ? nonogram.solution[i][j] == CellState.filled
+                                  ? Colors.deepPurple
+                                  : Colors.white
+                              : Colors.transparent),
+                      child: nonogramView &&
+                              nonogram.solution[i][j] == CellState.blocked
+                          ? CustomPaint(
+                              painter: BlockCrossPainter(),
+                            )
+                          : null,
+                    )
+                ],
+              )
+          ],
+        ),
       ),
     );
   }
+}
+
+class BlockCrossPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p1 = Offset(size.width, 0);
+    final p2 = Offset(0, size.height);
+    const p3 = Offset(0, 0);
+    final p4 = Offset(size.width, size.height);
+    final paint = Paint()
+      ..color = Colors.deepPurple
+      ..strokeWidth = 1;
+    canvas.drawLine(p1, p2, paint);
+    canvas.drawLine(p3, p4, paint);
+  }
+
+  @override
+  bool shouldRepaint(BlockCrossPainter oldDelegate) => false;
 }

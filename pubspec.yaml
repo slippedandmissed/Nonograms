@@ -41,6 +41,10 @@ dependencies:
   auto_route: ^7.7.1
   image_picker: ^1.0.1
   image: ^4.0.17
+  path_provider: ^2.0.15
+  uuid: ^3.0.7
+  path: ^1.8.3
+  localstorage: ^4.0.1+4
 
 dev_dependencies:
   flutter_test:

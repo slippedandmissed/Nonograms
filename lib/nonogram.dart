@@ -3,12 +3,21 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'nonogram.freezed.dart';
 part 'nonogram.g.dart';
 
+enum CellState {
+  @JsonValue(0)
+  empty,
+  @JsonValue(1)
+  filled,
+  @JsonValue(2)
+  blocked,
+}
+
 @freezed
 class Nonogram with _$Nonogram {
   const factory Nonogram({
     required int gridWidth,
     required int gridHeight,
-    required List<List<bool>> solution,
+    required List<List<CellState>> solution,
   }) = _Nonogram;
 
   factory Nonogram.fromJson(Map<String, Object?> json) =>

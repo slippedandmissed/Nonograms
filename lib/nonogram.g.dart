@@ -10,7 +10,9 @@ _$_Nonogram _$$_NonogramFromJson(Map<String, dynamic> json) => _$_Nonogram(
       gridWidth: json['gridWidth'] as int,
       gridHeight: json['gridHeight'] as int,
       solution: (json['solution'] as List<dynamic>)
-          .map((e) => (e as List<dynamic>).map((e) => e as bool).toList())
+          .map((e) => (e as List<dynamic>)
+              .map((e) => $enumDecode(_$CellStateEnumMap, e))
+              .toList())
           .toList(),
     );
 
@@ -18,8 +20,16 @@ Map<String, dynamic> _$$_NonogramToJson(_$_Nonogram instance) =>
     <String, dynamic>{
       'gridWidth': instance.gridWidth,
       'gridHeight': instance.gridHeight,
-      'solution': instance.solution,
+      'solution': instance.solution
+          .map((e) => e.map((e) => _$CellStateEnumMap[e]!).toList())
+          .toList(),
     };
+
+const _$CellStateEnumMap = {
+  CellState.empty: 0,
+  CellState.filled: 1,
+  CellState.blocked: 2,
+};
 
 _$_NonogramSet _$$_NonogramSetFromJson(Map<String, dynamic> json) =>
     _$_NonogramSet(

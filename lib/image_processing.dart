@@ -2,7 +2,10 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:image/image.dart' as img;
+import 'package:path/path.dart' as p;
 import 'package:nonograms/nonogram.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
 Future<img.Image?> loadImage(Uint8List bytes) async {
   return img.decodeImage(bytes);
@@ -20,6 +23,14 @@ Future<ui.Image> imgImageToUiImage(img.Image image) async {
   ui.FrameInfo fi = await codec.getNextFrame();
   ui.Image uiImage = fi.image;
   return uiImage;
+}
+
+Future<String> saveImage(img.Image image) async {
+  final documentsDir = await getApplicationDocumentsDirectory();
+  final filename = "${const Uuid().v4()}.png";
+  final path = p.join(documentsDir.path, filename);
+  await img.encodePngFile(path, image);
+  return path;
 }
 
 img.Image processImage({
@@ -51,6 +62,7 @@ NonogramSet importImage({
   required int imageHeight,
   required double sobelLevel,
   required double luminanceThreshold,
+  required bool invert,
 }) {
   final copy = processImage(
     image: image,
@@ -63,7 +75,7 @@ NonogramSet importImage({
   );
   final pixels = copy.getRange(0, 0, imageWidth, imageHeight);
 
-  final kernels = <List<List<List<bool>>>>[];
+  final kernels = <List<List<List<CellState>>>>[];
 
   while (pixels.moveNext()) {
     final pixel = pixels.current;
@@ -84,7 +96,11 @@ NonogramSet importImage({
     if (kernels[kernelY][kernelX].length <= cellY) {
       kernels[kernelY][kernelX].add([]);
     }
-    kernels[kernelY][kernelX][cellY].add(pixel.luminance > 0);
+    kernels[kernelY][kernelX][cellY].add(
+      pixel.luminance > 0
+          ? (invert ? CellState.filled : CellState.empty)
+          : (invert ? CellState.empty : CellState.filled),
+    );
   }
 
   final nonograms = <List<Nonogram>>[];

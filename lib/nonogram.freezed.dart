@@ -22,7 +22,7 @@ Nonogram _$NonogramFromJson(Map<String, dynamic> json) {
 mixin _$Nonogram {
   int get gridWidth => throw _privateConstructorUsedError;
   int get gridHeight => throw _privateConstructorUsedError;
-  List<List<bool>> get solution => throw _privateConstructorUsedError;
+  List<List<CellState>> get solution => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -35,7 +35,7 @@ abstract class $NonogramCopyWith<$Res> {
   factory $NonogramCopyWith(Nonogram value, $Res Function(Nonogram) then) =
       _$NonogramCopyWithImpl<$Res, Nonogram>;
   @useResult
-  $Res call({int gridWidth, int gridHeight, List<List<bool>> solution});
+  $Res call({int gridWidth, int gridHeight, List<List<CellState>> solution});
 }
 
 /// @nodoc
@@ -67,7 +67,7 @@ class _$NonogramCopyWithImpl<$Res, $Val extends Nonogram>
       solution: null == solution
           ? _value.solution
           : solution // ignore: cast_nullable_to_non_nullable
-              as List<List<bool>>,
+              as List<List<CellState>>,
     ) as $Val);
   }
 }
@@ -79,7 +79,7 @@ abstract class _$$_NonogramCopyWith<$Res> implements $NonogramCopyWith<$Res> {
       __$$_NonogramCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int gridWidth, int gridHeight, List<List<bool>> solution});
+  $Res call({int gridWidth, int gridHeight, List<List<CellState>> solution});
 }
 
 /// @nodoc
@@ -109,7 +109,7 @@ class __$$_NonogramCopyWithImpl<$Res>
       solution: null == solution
           ? _value._solution
           : solution // ignore: cast_nullable_to_non_nullable
-              as List<List<bool>>,
+              as List<List<CellState>>,
     ));
   }
 }
@@ -120,7 +120,7 @@ class _$_Nonogram implements _Nonogram {
   const _$_Nonogram(
       {required this.gridWidth,
       required this.gridHeight,
-      required final List<List<bool>> solution})
+      required final List<List<CellState>> solution})
       : _solution = solution;
 
   factory _$_Nonogram.fromJson(Map<String, dynamic> json) =>
@@ -130,9 +130,9 @@ class _$_Nonogram implements _Nonogram {
   final int gridWidth;
   @override
   final int gridHeight;
-  final List<List<bool>> _solution;
+  final List<List<CellState>> _solution;
   @override
-  List<List<bool>> get solution {
+  List<List<CellState>> get solution {
     if (_solution is EqualUnmodifiableListView) return _solution;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_solution);
@@ -178,7 +178,7 @@ abstract class _Nonogram implements Nonogram {
   const factory _Nonogram(
       {required final int gridWidth,
       required final int gridHeight,
-      required final List<List<bool>> solution}) = _$_Nonogram;
+      required final List<List<CellState>> solution}) = _$_Nonogram;
 
   factory _Nonogram.fromJson(Map<String, dynamic> json) = _$_Nonogram.fromJson;
 
@@ -187,7 +187,7 @@ abstract class _Nonogram implements Nonogram {
   @override
   int get gridHeight;
   @override
-  List<List<bool>> get solution;
+  List<List<CellState>> get solution;
   @override
   @JsonKey(ignore: true)
   _$$_NonogramCopyWith<_$_Nonogram> get copyWith =>
