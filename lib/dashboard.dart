@@ -198,6 +198,7 @@ class SavedGamePreview extends ConsumerWidget {
             },
             child: const Icon(Icons.delete_forever, size: 32),
           ),
+          const SizedBox(height: 128),
         ],
       ),
     );
