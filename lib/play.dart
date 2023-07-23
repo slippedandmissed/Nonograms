@@ -150,7 +150,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
   void initState() {
     super.initState();
     _work = [
-      ...widget.progress.solution.map((e) => [...e])
+      ...widget.solution.solution.map((e) => [...e])
     ];
     _history.push(_work);
     _rowHints = widget.solution.solution.map((e) => calculateHints(e)).toList();
@@ -270,11 +270,11 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                             Text(
                               "$hint",
                               style: TextStyle(
-                                color: columnsComplete[i]
-                                    ? Colors.grey
-                                    : widget.hintTextColor,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                  color: columnsComplete[i]
+                                      ? Colors.grey
+                                      : widget.hintTextColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10),
                             ),
                         ]),
                       )
@@ -321,6 +321,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
                                         ? Colors.grey
                                         : widget.hintTextColor,
                                     fontWeight: FontWeight.bold,
+                                    fontSize: 10,
                                   ),
                                 ),
                               ),
