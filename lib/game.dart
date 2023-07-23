@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:nonograms/image_processing.dart';
 import 'package:nonograms/nonogram.dart';
 import 'package:localstorage/localstorage.dart';
 
@@ -50,7 +52,7 @@ class StoredGames extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteGame(String id) async {
+  Future<void> deleteGame(String id, String filename) async {
     await _localStorage.ready;
     final ids = await getGameIds();
     final newIds = ids.where((e) => e != id).toList();
@@ -61,6 +63,8 @@ class StoredGames extends ChangeNotifier {
       await _localStorage.setItem("gameIds", idsString);
     }
     await _localStorage.deleteItem("game:$id");
+    final filePath = await getFilePath(filename);
+    await File(filePath).delete();
     notifyListeners();
   }
 }

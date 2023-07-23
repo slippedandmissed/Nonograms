@@ -192,7 +192,9 @@ class SavedGamePreview extends ConsumerWidget {
               showAlertDialog(
                 context,
                 onContinue: () async {
-                  await ref.read(storedGamesProvider).deleteGame(game.id);
+                  await ref
+                      .read(storedGamesProvider)
+                      .deleteGame(game.id, game.imagePath);
                 },
               );
             },
