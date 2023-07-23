@@ -150,7 +150,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
   void initState() {
     super.initState();
     _work = [
-      ...widget.solution.solution.map((e) => [...e])
+      ...widget.progress.solution.map((e) => [...e])
     ];
     _history.push(_work);
     _rowHints = widget.solution.solution.map((e) => calculateHints(e)).toList();
