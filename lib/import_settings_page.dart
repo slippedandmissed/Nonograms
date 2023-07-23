@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'dart:math';
-import 'dart:ui' as ui;
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -231,8 +231,8 @@ class _ImportSettingsPageState extends ConsumerState<ImportSettingsPage> {
 }
 
 final decodedImageProvider =
-    FutureProvider.family<ui.Image, img.Image>((ref, image) async {
-  return imgImageToUiImage(image);
+    FutureProvider.family<String, img.Image>((ref, image) async {
+  return saveImage(image, temp: true);
 });
 
 class GridPreview extends ConsumerWidget {
@@ -273,9 +273,9 @@ class GridPreview extends ConsumerWidget {
       children: [
         if (!nonogramView)
           uiImage!.when(
-            data: (uiImage) => RawImage(
+            data: (uiImage) => Image(
               fit: BoxFit.cover,
-              image: uiImage,
+              image: FileImage(File(uiImage)),
               width: totalWidth,
               height: totalHeight,
             ),

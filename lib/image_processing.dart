@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
@@ -11,22 +10,10 @@ Future<img.Image?> loadImage(Uint8List bytes) async {
   return img.decodeImage(bytes);
 }
 
-Future<ui.Image> imgImageToUiImage(img.Image image) async {
-  ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(
-      image.getBytes(order: img.ChannelOrder.rgba));
-  ui.ImageDescriptor id = ui.ImageDescriptor.raw(buffer,
-      height: image.height,
-      width: image.width,
-      pixelFormat: ui.PixelFormat.rgba8888);
-  ui.Codec codec = await id.instantiateCodec(
-      targetHeight: image.height, targetWidth: image.width);
-  ui.FrameInfo fi = await codec.getNextFrame();
-  ui.Image uiImage = fi.image;
-  return uiImage;
-}
-
-Future<String> saveImage(img.Image image) async {
-  final documentsDir = await getApplicationDocumentsDirectory();
+Future<String> saveImage(img.Image image, {bool temp = false}) async {
+  final documentsDir = await (temp
+      ? getTemporaryDirectory()
+      : getApplicationDocumentsDirectory());
   final filename = "${const Uuid().v4()}.png";
   final path = p.join(documentsDir.path, filename);
   await img.encodePngFile(path, image);

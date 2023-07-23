@@ -139,52 +139,56 @@ class SavedGamePreview extends ConsumerWidget {
       ),
     );
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        GridPreview(
-          imageWidth: imageWidth,
-          imageHeight: imageHeight,
-          kernelWidth: nonogramSet.kernels[0][0].gridWidth,
-          kernelHeight: nonogramSet.kernels[0][0].gridHeight,
-          totalWidth: 300,
-          nonogramView: true,
-          nonogram: nonogramSet,
-          wins: wins,
-          onTap: (kernelX, kernelY) {
-            context.router.push(PlayRoute(
-              gameId: game.id,
-              solution: game.nonogramSet.kernels[kernelY][kernelX],
-              progress: game.progress.kernels[kernelY][kernelX],
-              kernelX: kernelX,
-              kernelY: kernelY,
-            ));
-          },
-        ),
-        const SizedBox(height: 32),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black, width: 2),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.black, width: 2),
+            ),
+            child: Image(
+              image: FileImage(
+                File(game.imagePath),
+              ),
+              width: 200,
+            ),
           ),
-          child: Image.file(
-            File(game.imagePath),
-            width: 200,
+          const SizedBox(height: 32),
+          GridPreview(
+            imageWidth: imageWidth,
+            imageHeight: imageHeight,
+            kernelWidth: nonogramSet.kernels[0][0].gridWidth,
+            kernelHeight: nonogramSet.kernels[0][0].gridHeight,
+            totalWidth: 300,
+            nonogramView: true,
+            nonogram: nonogramSet,
+            wins: wins,
+            onTap: (kernelX, kernelY) {
+              context.router.push(PlayRoute(
+                gameId: game.id,
+                solution: game.nonogramSet.kernels[kernelY][kernelX],
+                progress: game.progress.kernels[kernelY][kernelX],
+                kernelX: kernelX,
+                kernelY: kernelY,
+              ));
+            },
           ),
-        ),
-        const SizedBox(height: 16),
-        TextButton(
-          onPressed: () {
-            showAlertDialog(
-              context,
-              onContinue: () async {
-                await ref.read(storedGamesProvider).deleteGame(game.id);
-              },
-            );
-          },
-          child: const Icon(Icons.delete_forever, size: 32),
-        ),
-      ],
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () {
+              showAlertDialog(
+                context,
+                onContinue: () async {
+                  await ref.read(storedGamesProvider).deleteGame(game.id);
+                },
+              );
+            },
+            child: const Icon(Icons.delete_forever, size: 32),
+          ),
+        ],
+      ),
     );
   }
 }

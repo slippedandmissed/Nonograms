@@ -124,8 +124,8 @@ class PlayPage extends ConsumerStatefulWidget {
       required this.kernelY});
 
   final headingSize = 100.0;
-  final maxGridWidth = 300.0;
-  final maxGridHeight = 500.0;
+  final maxGridWidth = 250.0;
+  final maxGridHeight = 450.0;
   final cellBorderWidth = 1.0;
   final borderWidth = 2.0;
   final hintColor = const Color.fromARGB(255, 190, 235, 255);
@@ -483,6 +483,7 @@ class _PlayPageState extends ConsumerState<PlayPage> {
               ),
             ],
           ),
+          const SizedBox(height: 64),
         ],
       ),
     );
