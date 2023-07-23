@@ -115,6 +115,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 }
 
+final imagePathProvider =
+    FutureProvider.family<String, String>((ref, filename) async {
+  return await getFilePath(filename);
+});
+
 class SavedGamePreview extends ConsumerWidget {
   const SavedGamePreview({super.key, required this.game});
 
@@ -122,6 +127,7 @@ class SavedGamePreview extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final imagePath = ref.watch(imagePathProvider(game.imagePath));
     final nonogramSet = game.progress;
     var imageWidth =
         (nonogramSet.mosaicWidth - 1) * nonogramSet.kernels[0][0].gridWidth +
@@ -148,11 +154,16 @@ class SavedGamePreview extends ConsumerWidget {
             decoration: BoxDecoration(
               border: Border.all(color: Colors.black, width: 2),
             ),
-            child: Image(
-              image: FileImage(
-                File(game.imagePath),
+            child: imagePath.when(
+              data: (imagePath) => Image(
+                image: FileImage(
+                  File(imagePath),
+                ),
+                width: 200,
               ),
-              width: 200,
+              loading: () => const SizedBox(
+                  width: 200, height: 200, child: CircularProgressIndicator()),
+              error: (e, __) => Text("$e"),
             ),
           ),
           const SizedBox(height: 32),

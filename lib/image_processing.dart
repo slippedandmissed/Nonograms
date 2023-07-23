@@ -17,6 +17,12 @@ Future<String> saveImage(img.Image image, {bool temp = false}) async {
   final filename = "${const Uuid().v4()}.png";
   final path = p.join(documentsDir.path, filename);
   await img.encodePngFile(path, image);
+  return temp ? path : filename;
+}
+
+Future<String> getFilePath(String filename) async {
+  final documentsDir = await getApplicationDocumentsDirectory();
+  final path = p.join(documentsDir.path, filename);
   return path;
 }
 
